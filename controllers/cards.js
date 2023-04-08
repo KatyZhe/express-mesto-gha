@@ -3,7 +3,7 @@ const {
   ERR_BAD_REQUEST,
   ERR_DEFAULT,
   ERR_NOT_FOUND
-} = require('../errors/errors');
+} = require('../errors/errors.js');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
