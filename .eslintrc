@@ -12,6 +12,7 @@
     },
     "rules": {
         "semi": ["error", "always"],
+        "eol-last": ["error", "never"],
         "quotes": ["error", "double"],
         "no-underscore-dangle": [
           "error",
