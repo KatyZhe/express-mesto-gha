@@ -1,9 +1,9 @@
-const User = require("../models/user");
+const User = require('../models/user');
 const {
   ERR_BAD_REQUEST,
   ERR_DEFAULT,
   ERR_NOT_FOUND
-} = require("../errors/errors");
+} = require('../errors/errors');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -11,7 +11,7 @@ module.exports.getUsers = (req, res) => {
       res.status(200).send(users);
     })
     .catch(() => {
-      res.status(ERR_DEFAULT).send({ message: "Ошибка сервера" });
+      res.status(ERR_DEFAULT).send({ message: 'Ошибка сервера' });
     });
 };
 
@@ -21,18 +21,18 @@ module.exports.getUserById = (req, res) => {
       if (!user) {
         res
           .status(ERR_NOT_FOUND)
-          .send({ message: "Запрашиваемый пользователь не найден." });
+          .send({ message: 'Запрашиваемый пользователь не найден.' });
         return;
       }
       res.status(200).send(user);
     })
     .catch(() => {
-      if (err.name === "CastError") {
+      if (err.name === 'CastError') {
         return res.status(ERR_BAD_REQUEST).send({
-          message: "Данные введены некорректно",
+          message: 'Данные введены некорректно',
         });
       }
-      return res.status(ERR_DEFAULT).send({ message: "Что-то пошло не так" });
+      return res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -43,12 +43,12 @@ module.exports.createUser = (req, res) => {
       res.status(200).send(user);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         return res.status(ERR_BAD_REQUEST).send({
-          message: "Данные введены некорректно",
+          message: 'Данные введены некорректно',
         });
       }
-      return res.status(ERR_DEFAULT).send({ message: "Что-то пошло не так" });
+      return res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -64,12 +64,12 @@ module.exports.updateUser = (req, res) => {
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         return res.status(ERR_BAD_REQUEST).send({
-          message: "Данные введены некорректно",
+          message: 'Данные введены некорректно',
         });
       }
-      return res.status(ERR_DEFAULT).send({ message: "Что-то пошло не так" });
+      return res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -85,11 +85,11 @@ module.exports.updateAvatar = (req, res) => {
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         return res.status(ERR_BAD_REQUEST).send({
-          message: "Данные введены некорректно",
+          message: 'Данные введены некорректно',
         });
       }
-      return res.status(ERR_DEFAULT).send({ message: "Что-то пошло не так" });
+      return res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
     });
 };
