@@ -3,7 +3,7 @@ const {
   ERR_BAD_REQUEST,
   ERR_DEFAULT,
   ERR_NOT_FOUND,
-} = require('../errors/errors.js');
+} = require('../errors/errors');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -20,14 +20,14 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) =>
+    .then((card) => {
       res.status(200).send({
         name: card.name,
         link: card.link,
         owner: card.owner,
         _id: card._id,
-      })
-    )
+      });
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(ERR_BAD_REQUEST).send({
@@ -47,7 +47,7 @@ module.exports.deleteCard = (req, res) => {
       }
       res.status(200).send(card);
     })
-    .catch(() => {
+    .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(ERR_BAD_REQUEST).send({
           message: 'Данные введены некорректно',
@@ -70,7 +70,7 @@ module.exports.likeCard = (req, res) => {
       }
       res.status(200).send(card);
     })
-    .catch(() => {
+    .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(ERR_BAD_REQUEST).send({
           message: 'Данные введены некорректно',
@@ -93,7 +93,7 @@ module.exports.dislikeCard = (req, res) => {
       }
       res.status(200).send(card);
     })
-    .catch(() => {
+    .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(ERR_BAD_REQUEST).send({
           message: 'Данные введены некорректно',

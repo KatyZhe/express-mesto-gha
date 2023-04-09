@@ -10,7 +10,7 @@ module.exports.getUsers = (req, res) => {
     .then((users) => {
       res.status(200).send(users);
     })
-    .catch(() => {
+    .catch((err) => {
       res.status(ERR_DEFAULT).send({ message: 'Ошибка сервера' });
     });
 };
@@ -26,7 +26,7 @@ module.exports.getUserById = (req, res) => {
       }
       res.status(200).send(user);
     })
-    .catch(() => {
+    .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(ERR_BAD_REQUEST).send({
           message: 'Данные введены некорректно',
@@ -60,7 +60,7 @@ module.exports.updateUser = (req, res) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
@@ -81,7 +81,7 @@ module.exports.updateAvatar = (req, res) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .then((user) => res.status(200).send(user))
     .catch((err) => {
