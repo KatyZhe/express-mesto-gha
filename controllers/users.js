@@ -17,18 +17,18 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.id)
-    .orFail(() => {
-      throw new Error('NotFound');
+    .then((user) => {
+      if (!user) {
+        res
+          .status(404)
+          .send({ message: 'Запрашиваемый пользователь не найден' });
+        return;
+      }
+      res.status(200).send(user);
     })
-    .orFail(() => {
-      res.status(ERR_NOT_FOUND).send({
-        message: 'Пользователь не найден',
-      });
-    })
-    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERR_NOT_FOUND).send({
+        return res.status(ERR_BAD_REQUEST).send({
           message: 'Пользователь не существует',
         });
       }
@@ -37,9 +37,7 @@ module.exports.getUserById = (req, res) => {
           message: 'Пользователь не найден',
         });
       }
-      return res
-        .status(ERR_DEFAULT)
-        .send({ message: 'Что-то пошло не так' });
+      return res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
     });
 };
 
