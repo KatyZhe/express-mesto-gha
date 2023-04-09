@@ -16,23 +16,30 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  User.findById(req.params.id) 
-    .then((user) => { 
-      if (!user) { 
-        res 
-          .status(ERR_NOT_FOUND) 
-          .send({ message: 'Пользователь не найден' }); 
-        return; 
-      } 
-      res.status(200).send(user); 
-    }) 
+  User.findById(req.params.id)
+    .orFail(() => {
+      throw new Error('NotFound');
+    })
+    .orFail(() => {
+      res.status(ERR_NOT_FOUND).send({
+        message: 'Пользователь не найден',
+      });
+    })
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(ERR_BAD_REQUEST).send({
-          message: 'Данные введены некорректно',
+          message: 'Пользователь не существует',
         });
       }
-      return res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
+      if (err.message === 'NotFound') {
+        return res.status(ERR_NOT_FOUND).send({
+          message: 'Пользователь не найден',
+        });
+      }
+      return res
+        .status(ERR_DEFAULT)
+        .send({ message: 'Что-то пошло не так' });
     });
 };
 
