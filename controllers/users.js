@@ -16,11 +16,11 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  User.findById(req.params.id)
+  User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
         res
-          .status(404)
+          .status(ERR_NOT_FOUND)
           .send({ message: 'Запрашиваемый пользователь не найден' });
         return;
       }
