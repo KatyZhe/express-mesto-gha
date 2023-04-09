@@ -28,7 +28,7 @@ module.exports.getUserById = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERR_BAD_REQUEST).send({
+        return res.status(ERR_NOT_FOUND).send({
           message: 'Пользователь не существует',
         });
       }
