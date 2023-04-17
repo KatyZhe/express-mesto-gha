@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
 const { auth } = require('./middlewares/auth');
-const { Errors } = require('./errors/Errors');
+import Errors from './errors/Errors';
 const { login, createUser} = require('./controllers/users');
 const { validateUser } = require('./validation/validation');
 
