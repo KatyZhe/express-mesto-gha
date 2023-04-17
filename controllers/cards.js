@@ -1,21 +1,18 @@
 const Card = require('../models/card');
-const {
-  ERR_BAD_REQUEST,
-  ERR_DEFAULT,
-  ERR_NOT_FOUND,
-} = require('../errors/errors');
+const { Errors } = require('../errors/Errors');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => {
       res.status(200).send(cards);
     })
     .catch(() => {
-      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
-    });
+      throw Errors.iternal();
+    })
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
@@ -29,35 +26,42 @@ module.exports.createCard = (req, res) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message: 'Данные введены некорректно',
-        });
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        throw Errors.badRequest(
+          'Невозможно создать карточку, проверьте введенные данные',
+        );
       }
-      return res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
-    });
+      throw Errors.iternal();
+    })
+    .catch(next);
 };
 
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      if (!card) {
-        res.status(ERR_NOT_FOUND).send({ message: 'Карточка не найдена' });
-        return;
+module.exports.deleteCard = (req, res, next) => {
+  Card.findById(req.params.id)
+    .orFail(() => {
+      throw Errors.notFound('Карточка не существует');
+    })
+    .then(({ owner }) => {
+      if (owner.toString() === req.user._id) {
+        Card.findByIdAndRemove(req.params.id).then((card) => {
+          res.status(200).send(card);
+        });
+      } else {
+        throw Errors.forbidden();
       }
-      res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message: 'Данные введены некорректно',
-        });
+        throw Errors.badRequest(
+          'Невозможно удалить карточку',
+        );
       }
-      return res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
-    });
+      throw err;
+    })
+    .catch(next);
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -65,22 +69,22 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(ERR_NOT_FOUND).send({ message: 'Карточка не найдена' });
-        return;
+        throw Errors.notFound('Карточка не найдена');
       }
       res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message: 'Данные введены некорректно',
-        });
+        throw Errors.badRequest(
+          'Неверные данные',
+        );
       }
-      return res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
-    });
+      throw err;
+    })
+    .catch(next);
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -88,17 +92,17 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(ERR_NOT_FOUND).send({ message: 'Карточка не найдена' });
-        return;
+        throw Errors.notFound('Карточка не существует');
       }
       res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message: 'Данные введены некорректно',
-        });
+        throw Errors.badRequest(
+          'Неверные данные',
+        );
       }
-      return res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так' });
-    });
+      throw err;
+    })
+    .catch(next);
 };
