@@ -1,4 +1,4 @@
-export class Errors extends Error {
+class Errors extends Error {
   constructor(status, message) {
     super();
     this.status = status;
@@ -29,3 +29,5 @@ export class Errors extends Error {
     return new Errors(500, 'Что-то пошло не так');
   }
 }
+
+module.exports = { Errors };
