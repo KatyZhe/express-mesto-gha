@@ -2,15 +2,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
-const { Errors } = require('../errors/Errors');
+const { BadRequestErr } = require('../errors/BadRequestErr');
+const { ConflictErr } = require('../errors/ConflictErr');
+const { NotFoundErr } = require('../errors/NotFoundErr');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.status(200).send(users);
-    })
-    .catch(() => {
-      throw Errors.iternal();
     })
     .catch(next);
 };
@@ -19,7 +18,7 @@ module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw Errors.notFound(
+        throw NotFoundErr(
           'Пользователь с указанным id не найден',
         );
       }
@@ -27,31 +26,31 @@ module.exports.getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw Errors.badRequest('Пользователь с указанным id не существует');
+        next(new BadRequestErr('Пользователь с указанным id не существует'));
       }
       if (err.message === 'NotFound') {
-        throw Errors.notFound('Пользователь с указанным id не найден');
+        next(new NotFoundErr('Пользователь с указанным id не найден'));
+      } else {
+        next(err);
       }
-      throw err;
     })
-    .catch(next);
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      throw Errors.notFound(
+      throw NotFoundErr(
         'Пользователь не найден',
       );
     })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw Errors.badRequest('Что-то пошло не так');
+        next(new BadRequestErr('Что-то пошло не так'));
+      } else {
+        next(err);
       }
-      throw err;
     })
-    .catch(next);
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -77,16 +76,14 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw Errors.badRequest(
-          'Данные введены неверное, невозможно создать пользователя',
-        );
+        next(new BadRequestErr('Данные введены неверное, невозможно создать пользователя'));
       }
       if (err.code === 11000) {
-        throw Errors.conflict('Пользователь уже зарегестрирован');
+        next(new ConflictErr('Пользователь уже зарегестрирован'));
+      } else {
+        next(err);
       }
-      throw Errors.iternal();
     })
-    .catch(next);
 };
 
 module.exports.updateUser = (req, res, next) => {
@@ -102,13 +99,11 @@ module.exports.updateUser = (req, res, next) => {
     .then((user) => res.status(200).send({ name: user.name, about: user.about }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw Errors.badRequest(
-          'Невозможно обновить данные пользователя',
-        );
+        next(new BadRequestErr('Невозможно обновить данные пользователя'));
+      } else {
+        next(err);
       }
-      throw err;
     })
-    .catch(next);
 };
 
 module.exports.updateAvatar = (req, res, next) => {
@@ -124,13 +119,11 @@ module.exports.updateAvatar = (req, res, next) => {
     .then((user) => res.status(200).send({ avatar: user.avatar }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw Errors.badRequest(
-          'Невозможно обновить аватар',
-        );
+        next(new BadRequestErr('Невозможно обновить аватар'));
+      } else {
+        next(err);
       }
-      throw err;
     })
-    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {
@@ -148,12 +141,6 @@ module.exports.login = (req, res, next) => {
         })
         .status(200)
         .send({ message: 'Вы авторизованы' });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw Errors.unauthorized();
-      }
-      throw err;
     })
     .catch(next);
 };

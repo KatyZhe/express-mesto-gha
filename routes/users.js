@@ -16,9 +16,9 @@ const {
 
 router.get('/users', getUsers);
 
-router.get('/users/:userId', validateDataBaseId, getUserById);
-
 router.get('/users/me', getCurrentUser);
+
+router.get('/users/:userId', validateDataBaseId, getUserById);
 
 router.patch('/users/me', validateUserInfo, updateUser);
 

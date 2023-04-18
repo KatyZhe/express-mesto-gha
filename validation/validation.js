@@ -2,10 +2,9 @@ const { celebrate, Joi, CelebrateError } = require('celebrate');
 const { isValidObjectId } = require('mongoose');
 const { isURL } = require('validator');
 
-// eslint-disable-next-line no-useless-escape
 const linkValidator = /(https*:\/\/)([\w-]{1,32}\.[\w-]{1,32})[^\s@]*#*/m;
 
-const isValidId = Joi.custom((value) => {
+const userId = Joi.custom((value) => {
   if (isValidObjectId(value)) return value;
   throw new CelebrateError('Неверный id');
 });
@@ -17,13 +16,13 @@ const validateURL = (value) => {
   return value;
 };
 
-module.exports.validateDataBaseId = celebrate({
+const validateDataBaseId = celebrate({
   params: Joi.object().keys({
-    id: isValidId,
+    id: Joi.string().required().length(24).hex(),
   }),
 });
 
-module.exports.validateUser = celebrate({
+const validateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
@@ -33,24 +32,24 @@ module.exports.validateUser = celebrate({
   }),
 });
 
-module.exports.validateUserInfo = celebrate({
+const validateUserInfo = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
     about: Joi.string().min(2).max(30).required(),
   }),
 });
 
-module.exports.validateUserAvatar = celebrate({
+const validateUserAvatar = celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().custom(validateURL).required(),
   }),
 });
 
-module.exports.validateCardInfo = celebrate({
+const validateCardInfo = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
     link: Joi.string().pattern(linkValidator).required(),
   }),
 });
 
-module.exports = { isValidId, validateURL };
+module.exports = { userId, validateURL, validateDataBaseId, validateUser, validateUserInfo, validateUserAvatar, validateCardInfo };
