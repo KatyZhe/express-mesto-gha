@@ -1,5 +1,5 @@
 const Card = require('../models/card');
-const IternalErr = require('../errors/IternalErr');
+//const IternalErr = require('../errors/IternalErr');
 const BadRequestErr = require('../errors/BadRequestErr');
 const NotFoundErr = require('../errors/NotFoundErr');
 const ForbiddenErr = require('../errors/ForbiddenErr');
@@ -10,7 +10,7 @@ module.exports.getCards = (req, res, next) => {
       res.status(200).send(cards);
     })
     .catch(() => {
-      next(new IternalErr());
+      next(new NotFoundErr());
     })
 };
 
