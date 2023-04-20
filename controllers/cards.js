@@ -1,8 +1,8 @@
 const Card = require('../models/card');
-const { IternalErr } = require('../errors/IternalErr');
-const { BadRequestErr } = require('../errors/BadRequestErr');
-const { NotFoundErr } = require('../errors/NotFoundErr');
-const { ForbiddenErr } = require('../errors/ForbiddenErr');
+const IternalErr = require('../errors/IternalErr');
+const BadRequestErr = require('../errors/BadRequestErr');
+const NotFoundErr = require('../errors/NotFoundErr');
+const ForbiddenErr = require('../errors/ForbiddenErr');
 
 module.exports.getCards = (req, res, next) => {
   Card.find({})
@@ -39,7 +39,7 @@ module.exports.createCard = (req, res, next) => {
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
     .orFail(() => {
-      throw NotFoundErr('Карточка не существует');
+      throw new NotFoundErr('Карточка не существует');
     })
     .then(({ owner }) => {
       if (owner.toString() === req.user._id) {
@@ -47,7 +47,7 @@ module.exports.deleteCard = (req, res, next) => {
           res.status(200).send(card);
         });
       } else {
-        throw ForbiddenErr();
+        throw new ForbiddenErr('Вы не можете удалить не свою карточку');
       }
     })
     .catch((err) => {
@@ -61,13 +61,13 @@ module.exports.deleteCard = (req, res, next) => {
 
 module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    req.params.id,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     .then((card) => {
       if (!card) {
-        throw NotFoundErr('Карточка не найдена');
+        throw new NotFoundErr('Карточка не найдена');
       }
       res.status(200).send(card);
     })
@@ -82,13 +82,13 @@ module.exports.likeCard = (req, res, next) => {
 
 module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
-    req.params.cardId,
+    req.params.id,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
     .then((card) => {
       if (!card) {
-        throw NotFoundErr('Карточка не существует');
+        throw new NotFoundErr('Карточка не существует');
       }
       res.status(200).send(card);
     })

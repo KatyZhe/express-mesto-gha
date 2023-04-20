@@ -22,6 +22,12 @@ const validateDataBaseId = celebrate({
   }),
 });
 
+const userIdValidation = celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().required().length(24).hex(),
+  }),
+});
+
 const validateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -52,4 +58,4 @@ const validateCardInfo = celebrate({
   }),
 });
 
-module.exports = { userId, validateURL, validateDataBaseId, validateUser, validateUserInfo, validateUserAvatar, validateCardInfo };
+module.exports = { userId, userIdValidation, validateURL, validateDataBaseId, validateUser, validateUserInfo, validateUserAvatar, validateCardInfo };
